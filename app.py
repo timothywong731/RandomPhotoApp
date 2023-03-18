@@ -1,11 +1,20 @@
 import os
 import random
-from flask import Flask, render_template, url_for, request
+from flask import Flask, render_template, url_for, request, jsonify
 
 app = Flask(__name__, static_folder='')
 
 IMAGE_DIR = None
 
+# Add this new route to your Flask app
+@app.route('/next_image')
+def next_image():
+    global IMAGE_DIR
+    images = [f for f in os.listdir(IMAGE_DIR) if os.path.isfile(os.path.join(IMAGE_DIR, f))]
+    image = random.choice(images)
+    image_url = url_for('static', filename=f'{IMAGE_DIR}/{image}')
+    return jsonify({"image_url": image_url})
+    
 @app.route('/', methods=['GET', 'POST'])
 def display_images():
     global IMAGE_DIR

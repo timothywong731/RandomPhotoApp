@@ -7,19 +7,58 @@
 
     <title>Image Display</title>
     <script>
+      var timer = null;
+      var nextImageUrl = null;
+
+      function preloadNextImage() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/next_image');
+        xhr.onload = function() {
+          if (xhr.status === 200) {
+            nextImageUrl = JSON.parse(xhr.responseText).image_url;
+          }
+        };
+        xhr.send();
+      }
+
+      function updateImage() {
+        var imageElement = document.getElementById("random_image");
+        if (nextImageUrl) {
+          imageElement.src = nextImageUrl;
+        }
+        preloadNextImage();
+      }
+
       function refreshImage() {
         {% if image_url %}
-          setTimeout(function() {
-            location.reload();
+          timer = setTimeout(function() {
+            updateImage();
+            refreshImage();
           }, 1000);
         {% endif %}
       }
+
+      function togglePause() {
+        var pauseButton = document.getElementById("pause_button");
+        var imageDirForm = document.getElementById("image_dir_form");
+        if (timer) {
+          clearTimeout(timer);
+          timer = null;
+          pauseButton.innerText = "Resume";
+          imageDirForm.style.display = "block";
+        } else {
+          refreshImage();
+          pauseButton.innerText = "Pause";
+          imageDirForm.style.display = "none";
+        }
+      }
     </script>
   </head>
-  <body onload="refreshImage()">
+  <body onload="refreshImage(); preloadNextImage();">
     <h1>Image Display</h1>
+    <button id="pause_button" onclick="togglePause()">Pause</button>
 
-    <form action="/" method="post">
+    <form id="image_dir_form" action="/" method="post" style="display: none;">
       <label for="image_dir">Image directory:</label>
       <input type="text" name="image_dir" id="image_dir" required>
       <button type="submit">Set Image Directory</button>
@@ -27,8 +66,7 @@
 
     {% if image_url %}
       <div>
-        <h2>Random Image:</h2>
-        <img src="{{ image_url }}" alt="Random Image">
+        <img id="random_image" src="{{ image_url }}" alt="Random Image">
       </div>
     {% endif %}
   </body>
