@@ -9,6 +9,7 @@
     <script>
       var timer = null;
       var nextImageUrl = null;
+      var refreshInterval = 1000;
 
       function preloadNextImage() {
         var xhr = new XMLHttpRequest();
@@ -34,29 +35,42 @@
           timer = setTimeout(function() {
             updateImage();
             refreshImage();
-          }, 1000);
+          }, refreshInterval);
         {% endif %}
       }
 
       function togglePause() {
         var pauseButton = document.getElementById("pause_button");
         var imageDirForm = document.getElementById("image_dir_form");
+        var intervalSliderContainer = document.getElementById("interval_slider_container");
         if (timer) {
           clearTimeout(timer);
           timer = null;
           pauseButton.innerText = "Resume";
           imageDirForm.style.display = "block";
+          intervalSliderContainer.style.display = "block";
         } else {
           refreshImage();
           pauseButton.innerText = "Pause";
           imageDirForm.style.display = "none";
+          intervalSliderContainer.style.display = "none";
         }
+      }
+
+      function updateRefreshInterval() {
+        refreshInterval = parseInt(document.getElementById("interval_slider").value) * 1000;
       }
     </script>
   </head>
   <body onload="refreshImage(); preloadNextImage();">
-    <h1>Image Display</h1>
     <button id="pause_button" onclick="togglePause()">Pause</button>
+
+    <div id="interval_slider_container" style="display: none;">
+      <label>1s</label>
+      <input id="interval_slider" type="range" min="1" max="10" value="1" step="1" onchange="updateRefreshInterval()">
+      <label>10s</label>
+    </div>
+
 
     <form id="image_dir_form" action="/" method="post" style="display: none;">
       <label for="image_dir">Image directory:</label>
