@@ -1,14 +1,35 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
   <head>
-    <title>Random Image</title>
-  </head>
-  <body>
-    <img src="{{ image_url }}" alt="Random Image">
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>Image Display</title>
     <script>
-      setTimeout(function() {
-        location.reload();
-      }, 1500);
+      function refreshImage() {
+        {% if image_url %}
+          setTimeout(function() {
+            location.reload();
+          }, 1000);
+        {% endif %}
+      }
     </script>
+  </head>
+  <body onload="refreshImage()">
+    <h1>Image Display</h1>
+
+    <form action="/" method="post">
+      <label for="image_dir">Image directory:</label>
+      <input type="text" name="image_dir" id="image_dir" required>
+      <button type="submit">Set Image Directory</button>
+    </form>
+
+    {% if image_url %}
+      <div>
+        <h2>Random Image:</h2>
+        <img src="{{ image_url }}" alt="Random Image">
+      </div>
+    {% endif %}
   </body>
 </html>
